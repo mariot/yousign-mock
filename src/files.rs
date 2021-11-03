@@ -56,6 +56,13 @@ async fn get(id: Id, list: Files<'_>) -> Option<Json<File<'_>>> {
     }))
 }
 
+#[get("/<id>/download")]
+async fn download(id: Id, list: Files<'_>) -> Option<Json<String>> {
+    let list = list.lock().await;
+    let (_, content) = list.get(id)?;
+    Some(Json(content.to_string()))
+}
+
 #[catch(404)]
 fn not_found() -> Value {
     json!({
@@ -66,7 +73,7 @@ fn not_found() -> Value {
 
 pub fn stage() -> rocket::fairing::AdHoc {
     rocket::fairing::AdHoc::on_ignite("JSON", |rocket| async {
-        rocket.mount("/files", routes![new, get])
+        rocket.mount("/files", routes![new, get, download])
             .register("/files", catchers![not_found])
             .manage(FileList::new(vec![]))
     })
