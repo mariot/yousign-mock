@@ -45,14 +45,25 @@ async fn new(file: Json<File<'_>>, list: Files<'_>) -> Value {
 }
 
 #[get("/<id>", format = "json")]
-async fn get(id: Id, list: Files<'_>) -> Option<Json<File<'_>>> {
+async fn get(id: Id, list: Files<'_>) -> Option<Value> {
     let list = list.lock().await;
-    let (name, content) = list.get(id)?;
+    let (name, _) = list.get(id)?;
 
-    Some(Json(File {
-        id: Some(id),
-        name: name.to_string().into(),
-        content: content.to_string().into(),
+    Some(json!({
+        "id": "/files/".to_owned() + &id.to_string(),
+        "name": name.to_string(),
+        "type": "signable",
+        "contentType": "application/pdf",
+        "description": null,
+        "createdAt": "2018-12-01T11:36:20+01:00",
+        "updatedAt": "2018-12-01T11:36:20+01:00",
+        "sha256": "bb57ae2b2ca6ad0133a699350d1a6f6c8cdfde3cf872cf526585d306e4675cc2",
+        "metadata": [],
+        "workspace": "/workspaces/XXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+        "creator": null,
+        "protected": false,
+        "position": 0,
+        "parent": null
     }))
 }
 
